@@ -1,0 +1,13 @@
+# Настройки Django
+SECRET_KEY=*******  # можно сгенерировать на сайте https://djecrety.ir или с помощью терминала python:
+ >>> import secrets >>> print(secrets.token_urlsafe(50))
+
+DEBUG= #False or True
+ALLOWED_HOSTS= # например через запятую: localhost,127.0.0.1,<ИМЯ ДОМЕНА ИЛИ IP АДРЕС СЕРВЕРА>
+
+# Настройки базы данных
+DATABASE_HOST=localhost
+DATABASE_PORT=5432
+DATABASE_NAME=your_db
+DATABASE_USER=user
+DATABASE_PASSWORD=password
