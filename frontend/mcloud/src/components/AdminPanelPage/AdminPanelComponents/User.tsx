@@ -46,7 +46,7 @@ const User: React.FC<UserTypeAdminPanel> = ({
             fetchDataPatch();
             setSendRequest('');
         }
-    }, [sendRequest]);
+    }, [_isStaff, _isSuperUser, id, removeItem, sendRequest]);
 
     const onClickHandler = (method: "DELETE" | "PATCH") => {
         setSendRequest(method);
