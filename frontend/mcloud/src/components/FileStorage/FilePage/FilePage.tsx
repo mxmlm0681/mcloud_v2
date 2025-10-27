@@ -40,7 +40,7 @@ function FilePage() {
             console.log(`Answer on load:`, data);
             setFiles(data);
         }
-        fetchData();
+        fetchData().then(data => console.log('Data loaded successfully:', data) );
     }, [currentStorageUser, userId])
 
     const sendFile = async (file: File) => {
