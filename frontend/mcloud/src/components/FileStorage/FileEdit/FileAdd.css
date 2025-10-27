@@ -5,8 +5,8 @@
     padding: 20px;
     border: 1px solid #ccc;
     border-radius: 5px;
-    background-color: hwb(0 0% 0%);
-    background: linear-gradient(to top left, rgb(255, 88, 116), rgb(38, 89, 255));
+  //  background-color: hwb(0 0% 0%);
+   // background: linear-gradient(to top left, rgb(239, 234, 235), rgb(134, 158, 237));
 }
 
 .input-wrapper {

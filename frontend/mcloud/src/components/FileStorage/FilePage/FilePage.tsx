@@ -40,7 +40,7 @@ function FilePage() {
             console.log(`Answer on load:`, data);
             setFiles(data);
         }
-        fetchData().then();
+        fetchData();
     }, [currentStorageUser, userId])
 
     const sendFile = async (file: File) => {
@@ -72,7 +72,6 @@ function FilePage() {
     };
 
     return (
-        // <FileContext.Provider value={{ currentStorageUser, setCurrentStorageUser }}>
         <>
             <FileList
                 fileList={files}
@@ -104,7 +103,6 @@ function FilePage() {
             }
             <FileAdd sendFile={sendFile} />
         </>
-        // </FileContext.Provider>
     )
 }
 
