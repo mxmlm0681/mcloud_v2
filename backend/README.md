@@ -30,11 +30,19 @@
    ```bash
    python -m venv venv
    ```
+   на macOS
+    ```bash
+    python3 -m venv venv
+    ```
 
 4. Активируем его:
 
    ```bash
    .\venv\Scripts\activate
+   ```
+   на macOS
+    ```bash
+   source venv/bin/activate
    ```
 
 5. Устанавливаем зависимости:
@@ -62,7 +70,7 @@
 
 7. Создаём базу данных:
 
-   База данных настраивается в **PostgreSQL**, а данные соединения хранятся в файле **`.env`**.
+   База данных настраивается в **PostgresSQL**, а данные соединения хранятся в файле **`.env`**.
 
    ```bash
    createdb -U <DB_USER> <DB_NAME>
