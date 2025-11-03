@@ -195,7 +195,6 @@ def user_logout(request):
 
             logout(request)
             response_data = {"message": "Вы вышли из аккаунта"}
-            print("вы разлогинились")
             return JsonResponse(response_data, status=status.HTTP_200_OK)
 
         except json.JSONDecodeError:
@@ -307,8 +306,6 @@ class FileViewSet(viewsets.ModelViewSet):
 
         if serializer.is_valid():
             file_instance = serializer.save(user=request.user)
-            print(f"отправляем в сериалайзер! {file_instance}")
-            print("Данные: ", serializer.data)
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
