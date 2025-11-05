@@ -182,7 +182,7 @@ http {
 - Создайте символическую ссылку на конфиг
 
 ```bash
-sudo ln -s /etc/nginx/sites-available/mcloud /etc/nginx/sites-enabled
+sudo ln -s /etc/nginx/sites-available/mcloud_v2 /etc/nginx/sites-enabled
 ```
 
 - Также вы можете настроить максимальный размер файла для загрузки:
