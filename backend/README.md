@@ -1,97 +1,213 @@
-# **Облачное хранилище mcloud**
+# Backend
 
-## **Серверная часть приложения (бэкенд)**
+## Развёртывание на сервере Linux Ubuntu
 
-### **1. Структура Бэкенд (Django)**
+### 1. Для удобного управления из своего терминала, скопируйте публичную часть ssh ключа на сервер:  
 
-📁 `backend/` – корневая папка бэкенда  
-&nbsp;&nbsp;&nbsp;&nbsp;📁 **`api/`** – приложение  
-&nbsp;&nbsp;&nbsp;&nbsp;📁 **`backend/`** – основная конфигурация Django  
-&nbsp;&nbsp;&nbsp;&nbsp;📁 **`media/`** – папка для загруженных пользователями файлов  
+```bash
+cat ~/.ssh/id_rsa.pub
+```
 
-📄 `manage.py` – точка входа для управления Django-проектом  
-📄 `requirements.txt` – список зависимостей Python  
-📄 `README.md` – документация по установке и запуску  
+- Укажите ключ в соответствующем поле при создании сервера
+- Войдите через консоль на сервер:
+- где вместо 0.0.0.0 вводим ip созданного сервера.
 
----
+```bash
+ssh root@0.0.0.0
+```
 
-### **2. Развёртывание проекта локально**
+------------------------------------------------------------------------
 
-1. Открываем папку `mcloud_v2` в любой IDE и запускаем встроенный терминал
+### 2. Создайте нового пользователя
 
-2. Переходим в папку `backend`:
+- Вместо user вводим имя нового пользователя
+- И наделите нового пользователя правами `superuser`
 
-   ```bash
-   cd backend
-   ```
+```bash
+adduser user_name
+usermod user_name -aG sudo
+```
 
-3. Создаём виртуальное окружение:
+- Переключитесь на вновь созданного пользователя:
 
-   ```bash
-   python -m venv venv
-   ```
-   на macOS
-    ```bash
-    python3 -m venv venv
-    ```
+```bash
+sudo -i -u user_name
+```
 
-4. Активируем его:
+------------------------------------------------------------------------
 
-   ```bash
-   .\venv\Scripts\activate
-   ```
-   на macOS
-    ```bash
-   source venv/bin/activate
-   ```
+### 3. Перед установкой обновите список репозиториев и обновите пакеты:
 
-5. Устанавливаем зависимости:
+```bash
+sudo apt update -y && apt upgrade -y
+```
 
-   ```bash
-   pip install -r requirements.txt
-   ```
+- Устанавливаем следующие пакеты:
 
-6. В папке `backend` создаём файл `.env` в соответствии с шаблоном:
+```bash
+sudo apt-get install python3 python3-venv python3-pip postgresql nginx
+```
 
-      ```plaintext
-      # Настройки Django
-      SECRET_KEY=*******  
-   # можно сгенерировать на сайте https://djecrety.ir или с помощью терминала python: >>> import secrets >>> print(secrets.token_urlsafe(50))
-      DEBUG= #False or True
-      ALLOWED_HOSTS= #например через запятую: localhost,127.0.0.1,<ИМЯ ДОМЕНА ИЛИ IP АДРЕС СЕРВЕРА>
+- Смените пароль пользователя postgres и создайте базу данных
 
-      # Настройки базы данных
-      DATABASE_HOST=localhost
-      DATABASE_PORT=5432
-      DATABASE_NAME=your_db
-      DATABASE_USER=user
-      DATABASE_PASSWORD=password
-      ```
+```bash
+sudo su postgres
+psql
+ALTER USER postgres WITH PASSWORD '*****';
+CREATE DATABASE mcloud_server;
+\q
+exit
+```
 
-7. Создаём базу данных:
+- клонируйте в корень папки вашего пользователя репозиторий с проектом,  
+настройте виртуальное окружение Python и установите пакеты из requirements.txt
 
-   База данных настраивается в **PostgresSQL**, а данные соединения хранятся в файле **`.env`**.
+```bash
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
 
-   ```bash
-   createdb -U <DB_USER> <DB_NAME>
-   ```
+- Сделайте миграции и выгрузите данные из заранее подготовленного файла loaddata.json:
 
-8. Применяем миграции:
+```bash
+python manage.py migrate
+```
 
-   ```bash
-   python manage.py migrate
-   ```
+------------------------------------------------------------------------
 
-9. Создаём суперпользователя для доступа к Административному интерфейсу:
+### 4. Настройте gunicorn:
 
-   ```bash
-   python manage.py createsuperuser
-   ```
+```bash
+sudo nano /etc/systemd/system/gunicorn.service
+```
 
-10. Запускаем сервер:
+- Впишите следующий код, где смените `ubuntu` на вашего пользователя:
 
-    ```bash
-    python manage.py runserver
-    ```
+```bash
+[Unit]
+Description=gunicorn daemon
+After=network.target
 
-После этого по ссылке [127.0.0.1:8000](http://127.0.0.1:8000/admin/) будет доступно страница: Django administration. Суперпользователь позволят входить как в "Django administration", так и в "Административный интерфейс" после входа.
+[Service]
+User=ubuntu
+WorkingDirectory=/home/ubuntu/mcloud_v2/backend
+ExecStart=/home/ubuntu/mcloud_v2/backend/venv/bin/gunicorn --access-logfile - --workers 3 --bind unix:/home/ubuntu/mcloud_v2/backend/gunicorn.sock backend.wsgi:application
+
+[Install]
+WantedBy=multi-user.target
+
+```
+
+Запустите gunicorn, добавьте в автозагрузку и проверьте его работу
+
+```bash
+sudo systemctl start gunicorn
+sudo systemctl enable gunicorn
+sudo systemctl status gunicorn
+```
+
+------------------------------------------------------------------------
+
+### 5. Настройте nginx. 
+Создадим новый файл конфигурации:
+
+```bash
+sudo nano /etc/nginx/sites-available/backend
+```
+
+Впишите следующий код, смените имя пользователя системы и ip сервера
+
+```bash
+server {
+    listen 80;
+    server_name 79.174.91.225;
+    root /home/ubuntu/mcloud_v2/frontend/mcloud/dist;
+
+    location /media/ {
+        alias /home/ubuntu/mcloud_v2/backend/media/;
+        default_type "image/jpg";
+    }
+    location / {
+        try_files $uri /index.html =404;
+    }
+    location /api/ {
+        include proxy_params;
+        proxy_pass http://unix:/home/ubuntu/mcloud_v2/backend/backend/project.sock;
+    }
+    location /a/ {
+        include proxy_params;
+        proxy_pass http://unix:/home/ubuntu/mcloud_v2/backend/backend/project.sock;
+    }
+}
+```
+Так же поменяем конфиг:
+
+```bash
+sudo nano /etc/nginx/nginx.config
+```
+
+Впишите следующий код, сменив имя пользователя:
+
+```bash
+user ubuntu;
+worker_processes auto;
+pid /run/nginx.pid;
+include /etc/nginx/modules-enabled/*.conf;
+
+events {
+    worker_connections 768;
+}
+
+http {
+    sendfile on;
+    tcp_nopush on;
+    types_hash_max_size 2048;
+
+    include /etc/nginx/mime.types;
+    default_type application/octet-stream;
+
+    ssl_protocols TLSv1 TLSv1.1 TLSv1.2 TLSv1.3;
+    ssl_prefer_server_ciphers on;
+
+    access_log /var/log/nginx/access.log;
+    error_log /var/log/nginx/error.log;
+
+    gzip on;
+
+    include /etc/nginx/conf.d/*.conf;
+    include /etc/nginx/sites-enabled/*;
+}
+```
+
+- Создайте символическую ссылку на конфиг
+
+```bash
+sudo ln -s /etc/nginx/sites-available/backend /etc/nginx/sites-enabled
+```
+
+- Также вы можете настроить максимальный размер файла для загрузки:
+
+```bash
+sudo nano /etc/nginx/nginx.conf
+```
+
+- Добавив следующие строки в http{} (в данном примере ограничение 15мб)  
+client_max_body_size 15M;  
+client_body_buffer_size 15M;
+
+- Переопределите конфиг сервера nginx и проверьте его работоспособность:
+
+```bash
+sudo systemctl reload nginx
+sudo systemctl status nginx
+```
+
+- Логи nginx:
+
+```bash
+sudo nano /var/log/nginx/access.log
+sudo nano /var/log/nginx/error.log
+```
+
+### Теперь ваш сайт должен работать.

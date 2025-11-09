@@ -9,7 +9,7 @@ cd /mcloud_v2/frontend/mcloud
 ```
 2. Запустить установку зависимостей:
 ```
-yarn 
+yarn install
 ```
 
 2. Запустить сборку командой:
