@@ -1,9 +1,10 @@
 FROM node:alpine as build
 
 COPY package.json package.json
-RUN yarn
+RUN yarn install
 
 COPY . .
+
 RUN yarn build
 
 FROM nginx:stable-alpine
