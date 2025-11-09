@@ -3,7 +3,7 @@ FROM node:alpine as build
 COPY package.json package.json
 RUN yarn install
 
-COPY . .
+COPY .. .
 
 RUN yarn build
 
