@@ -78,14 +78,17 @@ CORS_ORIGIN_ALLOW_ALL = False
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
+    "http://79.174.91.225",
 ]
 
 CORS_ALLOWED_ORIGIN_REGEXES = [
     "http://localhost:5173",
+    "http://79.174.91.225",
 ]
 
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5173",
+    "http://79.174.91.225",
 ]
 
 # Позволяет клиенту видеть эти заголовки
