@@ -121,7 +121,7 @@ sudo nano /etc/nginx/sites-available/backend
 ```bash
 server {
     listen 80;
-    server_name 79.174.91.225;
+    server_name 91.197.97.46;
     root /home/ubuntu/mcloud_v2/frontend/mcloud/dist;
 
     location /media/ {
@@ -144,7 +144,7 @@ server {
 Так же поменяем конфиг:
 
 ```bash
-sudo nano /etc/nginx/nginx.config
+sudo nano /etc/nginx/nginx.conf
 ```
 
 Впишите следующий код, сменив имя пользователя:
