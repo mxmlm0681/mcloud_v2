@@ -2,7 +2,7 @@ import axios, { AxiosError } from 'axios';
 
 
 //export const BASE_URL = 'http://localhost:8000/api';
-export const BASE_URL = 'http://91.197.97.46:80/api';
+export const BASE_URL = 'http://91.197.97.46/api';
 
 
 const getCookie = (name: string): string | null => {
